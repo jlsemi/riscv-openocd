@@ -65,6 +65,8 @@ void mpsse_read_data_bits_high_byte(struct mpsse_ctx *ctx, uint8_t *data);
 void mpsse_loopback_config(struct mpsse_ctx *ctx, bool enable);
 void mpsse_set_divisor(struct mpsse_ctx *ctx, uint16_t divisor);
 int mpsse_divide_by_5_config(struct mpsse_ctx *ctx, bool enable);
+int mpsse_set_3phase_en(struct mpsse_ctx *ctx, bool enable);
+int mpsse_set_adaptive_clk_en(struct mpsse_ctx *ctx, bool enable);
 int mpsse_rtck_config(struct mpsse_ctx *ctx, bool enable);
 
 /* Helper to set frequency in Hertz. Returns actual realizable frequency or negative error.

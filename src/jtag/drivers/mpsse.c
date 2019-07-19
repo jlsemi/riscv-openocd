@@ -728,6 +728,20 @@ void mpsse_set_divisor(struct mpsse_ctx *ctx, uint16_t divisor)
 	buffer_write_byte(ctx, divisor >> 8);
 }
 
+int mpsse_set_3phase_en(struct mpsse_ctx *ctx, bool enable)
+{
+	LOG_DEBUG("%s", enable ? "on" : "off");
+	single_byte_boolean_helper(ctx, enable, 0x8c, 0x8d);
+	return ERROR_OK;
+}
+
+int mpsse_set_adaptive_clk_en(struct mpsse_ctx *ctx, bool enable)
+{
+	LOG_DEBUG("%s", enable ? "on" : "off");
+	single_byte_boolean_helper(ctx, enable, 0x96, 0x97);
+	return ERROR_OK;
+}
+
 int mpsse_divide_by_5_config(struct mpsse_ctx *ctx, bool enable)
 {
 	if (!mpsse_is_high_speed(ctx))

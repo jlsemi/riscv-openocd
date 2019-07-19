@@ -144,6 +144,7 @@ DRIVERFILES += %D%/opendous.c
 endif
 if SYSFSGPIO
 DRIVERFILES += %D%/sysfsgpio.c
+DRIVERFILES += %D%/baset1.c
 endif
 if BCM2835GPIO
 DRIVERFILES += %D%/bcm2835gpio.c
