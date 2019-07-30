@@ -329,6 +329,10 @@ AC_ARG_ENABLE([sysfsgpio],
   AS_HELP_STRING([--enable-sysfsgpio], [Enable building support for programming driven via sysfs gpios.]),
   [build_sysfsgpio=$enableval], [build_sysfsgpio=no])
 
+AC_ARG_ENABLE([jlbaset1],
+  AS_HELP_STRING([--enable-jlbaset1], [Enable building support for programming driven with JLBaseT1.]),
+  [build_jlbaset1=$enableval], [build_jlbaset1=no])
+
 AS_CASE([$host_os],
   [linux*], [],
   [
@@ -594,6 +598,13 @@ AS_IF([test "x$build_sysfsgpio" = "xyes"], [
   AC_DEFINE([BUILD_SYSFSGPIO], [0], [0 if you don't want SysfsGPIO driver.])
 ])
 
+AS_IF([test "x$build_jlbaset1" = "xyes"], [
+  build_bitbang=yes
+  AC_DEFINE([BUILD_JLBASET1], [1], [1 if you want the JLBaseT1 driver.])
+], [
+  AC_DEFINE([BUILD_JLBASET1], [0], [0 if you don't want JLBaseT1 driver.])
+])
+
 AS_IF([test "x$build_target64" = "xyes"], [
   AC_DEFINE([BUILD_TARGET64], [1], [1 if you want 64-bit addresses.])
 ], [
@@ -713,6 +724,7 @@ AM_CONDITIONAL([OOCD_TRACE], [test "x$build_oocd_trace" = "xyes"])
 AM_CONDITIONAL([REMOTE_BITBANG], [test "x$build_remote_bitbang" = "xyes"])
 AM_CONDITIONAL([BUSPIRATE], [test "x$build_buspirate" = "xyes"])
 AM_CONDITIONAL([SYSFSGPIO], [test "x$build_sysfsgpio" = "xyes"])
+AM_CONDITIONAL([JLBASET1], [test "x$build_jlbaset1" = "xyes"])
 AM_CONDITIONAL([USE_LIBUSB0], [test "x$use_libusb0" = "xyes"])
 AM_CONDITIONAL([USE_LIBUSB1], [test "x$use_libusb1" = "xyes"])
 AM_CONDITIONAL([IS_CYGWIN], [test "x$is_cygwin" = "xyes"])
