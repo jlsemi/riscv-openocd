@@ -742,3 +742,22 @@ struct jtag_interface baset1_fast_interface = {
 	.init = baset1_init,
 	.quit = baset1_quit,
 };
+
+int driver_mdio_init(void)
+{
+	init_mdio(&baset1_ops);
+	return ERROR_OK;
+}
+
+uint16_t driver_mdio_read(uint8_t phy, uint8_t dev, uint16_t reg)
+{
+	struct mdio_ctx *mdio_ctx = get_mdio();
+	uint16_t val = mdio_read(mdio_ctx, phy, dev, reg);
+	return val;
+}
+
+void driver_mdio_write(uint8_t phy, uint8_t dev, uint16_t reg, uint16_t val)
+{
+	struct mdio_ctx *mdio_ctx = get_mdio();
+	mdio_write(mdio_ctx, phy, dev, reg, val);
+}

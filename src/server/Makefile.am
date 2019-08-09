@@ -10,6 +10,12 @@ noinst_LTLIBRARIES += %D%/libserver.la
 	%D%/tcl_server.c \
 	%D%/tcl_server.h
 
+if JLBASET1
+%C%_libserver_la_SOURCES += \
+	%D%/mdio_server.c \
+	%D%/mdio_server.h
+endif
+
 %C%_libserver_la_CFLAGS = $(AM_CFLAGS)
 if IS_MINGW
 # FD_* macros are sloppy with their signs on MinGW32 platform
