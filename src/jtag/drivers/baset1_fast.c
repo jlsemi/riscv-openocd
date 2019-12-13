@@ -11,6 +11,9 @@
 #include <jtag/interface.h>
 
 #include "baset1_mdio.h"
+#include "bitbang.h"
+
+#include "baset1_fast.h"
 
 #define CLOCK_IDLE() 0
 
@@ -25,12 +28,6 @@
 #undef DUMP_BUF
 #define DUMP_BUF(expr...)
 #endif
-
-typedef enum {
-	BB_LOW,
-	BB_HIGH,
-	BB_ERROR
-} bb_value_t;
 
 struct baset1_ops {
 	uint16_t vid;
@@ -122,8 +119,10 @@ static int init_mdio(struct baset1_ops *ops)
 	return ERROR_OK;
 }
 
+static struct bitbang_interface baset1_bitbang;
 static int baset1_init(void)
 {
+	bitbang_interface = &baset1_bitbang;
 	init_mdio(&baset1_ops);
 	return ERROR_OK;
 }
@@ -741,6 +740,96 @@ struct jtag_interface baset1_fast_interface = {
 	.commands = baset1_command_handlers,
 	.init = baset1_init,
 	.quit = baset1_quit,
+};
+
+static bb_value_t baset1_slow_read(void)
+{
+	const uint8_t phy_id = baset1_ops.phy_id;
+	const uint8_t target = baset1_ops.target;
+	uint16_t reg = driver_mdio_read(phy_id, MDIO_JTAG_DEV, MDIO_JTAG_REG);
+	return (reg & JTAG_TDO(target)) ?  BB_HIGH : BB_LOW;
+}
+
+static int baset1_slow_write(int tck, int tms, int tdi)
+{
+	const uint8_t phy_id = baset1_ops.phy_id;
+	const uint8_t target = baset1_ops.target;
+	uint16_t jtag_reg = get_jtag_reg();
+
+	if (tdi)
+		jtag_reg |= JTAG_TDI(target);
+	else
+		jtag_reg &= ~JTAG_TDI(target);
+
+	if (tck)
+		jtag_reg |= JTAG_TCK(target);
+	else
+		jtag_reg &= ~JTAG_TCK(target);
+
+	if (tms)
+		jtag_reg |= JTAG_TMS(target);
+	else
+		jtag_reg &= ~JTAG_TMS(target);
+
+	driver_mdio_write(phy_id, MDIO_JTAG_DEV, MDIO_JTAG_REG, jtag_reg);
+	set_jtag_reg(jtag_reg);
+	return ERROR_OK;
+}
+
+static int baset1_slow_reset(int trst, int srst)
+{
+	const uint8_t phy_id = baset1_ops.phy_id;
+	const uint8_t target = baset1_ops.target;
+	uint16_t jtag_reg = get_jtag_reg();
+	if (trst)
+		jtag_reg |= JTAG_RST(target);
+	else
+		jtag_reg &= ~JTAG_RST(target);
+	if (srst)
+		LOG_WARNING("Warn: baset1 dose nothing with jtag srst\n");
+	driver_mdio_write(phy_id, MDIO_JTAG_DEV, MDIO_JTAG_REG, jtag_reg);
+	set_jtag_reg(jtag_reg);
+	return ERROR_OK;
+}
+
+static struct bitbang_interface baset1_bitbang = {
+	.read = baset1_slow_read,
+	.write = baset1_slow_write,
+	.reset = baset1_slow_reset,
+	.blink = 0,
+};
+
+static int baset1_speed(int speed)
+{
+	return ERROR_OK;
+}
+
+static int baset1_speed_div(int speed, int *khz)
+{
+	*khz = speed / 1000;
+	return ERROR_OK;
+}
+
+static int baset1_khz(int khz, int *jtag_speed)
+{
+	*jtag_speed = khz * 1000;
+	return ERROR_OK;
+}
+
+static const char * const baset1_slow_transports[] = { "jtag", "swd", NULL };
+
+struct jtag_interface baset1_interface = {
+	.name = "baset1",
+	.supported = DEBUG_CAP_TMS_SEQ,
+	.execute_queue = bitbang_execute_queue,
+	.transports = baset1_slow_transports,
+	.swd = &bitbang_swd,
+	.commands = baset1_command_handlers,
+	.init = baset1_init,
+	.quit = baset1_quit,
+	.speed_div = baset1_speed_div,
+	.speed = baset1_speed,
+	.khz = baset1_khz,
 };
 
 int driver_mdio_init(void)

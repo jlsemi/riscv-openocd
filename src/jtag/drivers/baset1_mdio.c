@@ -301,7 +301,7 @@ static inline int init_mpsse(struct mdio_ctx *mdio_ctx)
 	mpsse_divide_by_5_config(mpsse_ctx, false);
 	mpsse_loopback_config(mpsse_ctx, false);
 
-	mpsse_set_divisor(mpsse_ctx, 0x0002);
+	mpsse_set_divisor(mpsse_ctx, 0x0006);
 	mpsse_flush(mpsse_ctx);
 	mpsse_purge(mpsse_ctx);
 

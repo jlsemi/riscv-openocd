@@ -146,7 +146,6 @@ if SYSFSGPIO
 DRIVERFILES += %D%/sysfsgpio.c
 endif
 if JLBASET1
-DRIVERFILES += %D%/baset1.c
 DRIVERFILES += %D%/baset1_mdio.c
 DRIVERFILES += %D%/baset1_fast.c
 endif
